@@ -55,8 +55,10 @@
   }
 
   function boot() {
-    if (!window.JitsuSDK || !window.JitsuSDK.jitsuAnalytics) return;
-    var jitsuAnalytics = window.JitsuSDK.jitsuAnalytics;
+    // esbuild's iife wrapper puts the module namespace under .default; accept either shape.
+    var SDK = window.JitsuSDK && (window.JitsuSDK.jitsuAnalytics ? window.JitsuSDK : window.JitsuSDK.default);
+    if (!SDK || !SDK.jitsuAnalytics) { emit({ variant: 'error', error: 'Jitsu SDK not found on window' }); return; }
+    var jitsuAnalytics = SDK.jitsuAnalytics;
 
     var shared = { host: HOOK, writeKey: WRITE_KEY, debug: false, errorPolicy: 'log' };
 
