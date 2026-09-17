@@ -63,6 +63,54 @@
     $('compare').innerHTML = html;
   }
 
+  var NETWORKS = [
+    { key: 'meta', label: 'Meta', lib: 'fbq', idSupport: 'pixel' },
+    { key: 'tiktok', label: 'TikTok', lib: 'ttq', idSupport: 'pixel' },
+    { key: 'snap', label: 'Snapchat', lib: 'snaptr', idSupport: 'server-only' },
+    { key: 'google', label: 'Google', lib: 'gtag', idSupport: 'native' },
+  ];
+
+  /* The question people actually ask first: is it firing? Answer it at the top. */
+  function renderStatus() {
+    var cfg = (S.config && S.config.pixels) || {};
+    var idKey = { meta: 'meta', tiktok: 'tiktok', snap: 'snap', google: 'ga4' };
+    var beacons = (window.__SFERE_NET || []).filter(function (e) { return e.beacon; });
+    var hash = S.externalIdHashed;
+
+    var rows = NETWORKS.map(function (n) {
+      var configured = !!cfg[idKey[n.key]];
+      var loaded = !!window[n.lib];
+      var mine = beacons.filter(function (e) { return e.network === n.key; });
+      var fired = mine.length;
+
+      var carries = false;
+      mine.forEach(function (e) {
+        var blob = JSON.stringify(e.decoded.params) + (e.body || '');
+        if (hash && blob.indexOf(hash) >= 0) carries = true;
+        if (hash && blob.indexOf(hash.slice(0, 24)) >= 0) carries = true;
+        if (/external_id/i.test(blob)) carries = true;
+      });
+
+      var idCell;
+      if (n.idSupport === 'server-only') idCell = '<span class="dot amber" title="Snap web pixel has no external_id field"></span><span class="sub">server only</span>';
+      else if (n.idSupport === 'native') idCell = '<span class="dot grey"></span><span class="sub">native match</span>';
+      else idCell = carries ? '<span class="dot on"></span><span class="sub">carried</span>'
+                            : '<span class="dot off"></span><span class="sub">no</span>';
+
+      if (!configured) {
+        return '<tr class="off-row"><td>' + n.label + '</td><td colspan="3"><span class="sub">no pixel id configured</span></td></tr>';
+      }
+      return '<tr>' +
+        '<td><b>' + n.label + '</b></td>' +
+        '<td><span class="dot ' + (loaded ? 'on' : 'off') + '"></span><span class="sub">loaded</span></td>' +
+        '<td><span class="dot ' + (fired ? 'on' : 'off') + '"></span><span class="sub">' + (fired ? fired + ' sent' : 'none') + '</span></td>' +
+        '<td>' + idCell + '</td></tr>';
+    });
+
+    $('status').innerHTML = '<table class="status-tbl"><thead><tr><th></th><th>library</th><th>beacon</th><th>our id</th></tr></thead><tbody>'
+      + rows.join('') + '</tbody></table>';
+  }
+
   var seen = [];
   function renderNet() {
     var list = (window.__SFERE_NET || []).filter(function (e) { return e.beacon; });
@@ -116,11 +164,11 @@
     renderIdentity(); renderCompare(e.detail.comparison);
   });
   window.addEventListener('sfere:pixels', function () { renderIdentity(); setTimeout(renderNet, 400); });
-  window.addEventListener('sfere:net', function () { renderNet(); });
+  window.addEventListener('sfere:net', function () { renderNet(); renderStatus(); });
   window.addEventListener("sfere:collect", function (e) { renderCapi(e.detail.capi, e.detail.ip); renderCompare(e.detail.comparison); });
 
-  renderMode(); renderIdentity(); renderCompare(null);
-  setInterval(renderNet, 1500);
+  renderMode(); renderIdentity(); renderCompare(null); renderStatus();
+  setInterval(function () { renderNet(); renderStatus(); }, 1200);
 
   $('resetBtn').addEventListener('click', function (ev) {
     ev.preventDefault();
