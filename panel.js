@@ -102,7 +102,7 @@
       }
       return '<tr>' +
         '<td><b>' + n.label + '</b></td>' +
-        '<td><span class="dot ' + (loaded ? 'on' : 'off') + '"></span><span class="sub">loaded</span></td>' +
+        '<td><span class="dot ' + (loaded ? 'on' : 'off') + '"></span><span class="sub">' + (loaded ? 'loaded' : 'not loaded') + '</span></td>' +
         '<td><span class="dot ' + (fired ? 'on' : 'off') + '"></span><span class="sub">' + (fired ? fired + ' sent' : 'none') + '</span></td>' +
         '<td>' + idCell + '</td></tr>';
     });

@@ -157,9 +157,8 @@
       S.comparison = window.SfereStore.comparison(ing.graph, ing.cookies, activeNetworks());
       // the panel reads S.bootstrap for the identity card
       S.bootstrap = { externalId: externalId, externalIdHashed: hashed,
-        isNewVisitor: idres.isNew, pageviews: ing.graph.pageviews, comparison: S.comparison };
-      emit('bootstrap', { externalId: externalId, externalIdHashed: hashed,
-        isNewVisitor: idres.isNew, pageviews: ing.graph.pageviews, comparison: S.comparison });
+        externalIdSource: cid.source, pageviews: ing.graph.pageviews, comparison: S.comparison };
+      emit('bootstrap', S.bootstrap);
     }
 
     // 2. Analytics first, pinned to that id, then the rest all carrying the same value.
