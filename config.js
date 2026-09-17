@@ -9,7 +9,7 @@ window.SFERE_CONFIG = {
   siteName: 'The Daily Grill',
   pixels: {
     meta:   '2545993665903184',   // Meta pixel / dataset id, e.g. 1234567890
-    tiktok: '',   // TikTok pixel code,       e.g. CABCDEFGHIJKLMNOPQRS
+    tiktok: 'DA6142BC77UC8FLJ2OIG',   // TikTok pixel code,       e.g. CABCDEFGHIJKLMNOPQRS
     snap:   '0e089d2a-b241-49a1-a657-b64caf93d66f',   // Snap pixel id,           e.g. 11111111-2222-3333-4444-555555555555
     ga4:    'G-RXQTG25Z6S',   // GA4 measurement id,      e.g. G-XXXXXXXXXX
   },
