@@ -179,7 +179,7 @@
     setTimeout(async function () {
       var again = window.SfereStore.ingest(activeNetworks());
       S.comparison = window.SfereStore.comparison(again.graph, again.cookies, activeNetworks());
-      var live = window.SfereStore.bundle(again.graph).live;
+      var live = window.SfereStore.bundle(again.graph, activeNetworks()).live;
       S.capi = await buildCapi(live);
       emit('collect', { comparison: S.comparison, capi: S.capi, ip: S.ip });
     }, 2200);

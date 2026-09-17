@@ -126,10 +126,13 @@
     return { graph: g, delta: delta, cookies: cookies };
   }
 
-  function bundle(g) {
+  function bundle(g, activeNetworks) {
     var now = Date.now(), live = {}, expired = {};
+    var active = activeNetworks || null;
     Object.keys(g.identifiers).forEach(function (k) {
       var v = g.identifiers[k];
+      // Stored on an earlier visit, for a network this page no longer runs. Not ours.
+      if (active && v.platform && active.indexOf(v.platform) < 0) return;
       (v.expiresAt > now ? live : expired)[k] = {
         value: v.value, source: v.source, platform: v.platform, ttlDays: v.ttlDays,
         ttlBasis: v.ttlBasis, reused: v.reused,
@@ -147,7 +150,7 @@
     if (active.indexOf('meta') >= 0) ['_fbp', '_fbc'].forEach(function (n) { if (cookies[n]) baseline[n] = cookies[n]; });
     if (active.indexOf('google') >= 0) Object.keys(cookies).forEach(function (k) { if (k === '_ga' || k.indexOf('_ga_') === 0) baseline[k] = cookies[k]; });
 
-    var live = bundle(g).live, enriched = {};
+    var live = bundle(g, active).live, enriched = {};
     Object.keys(live).forEach(function (k) { enriched[k] = live[k].value; });
     var gained = Object.keys(enriched).filter(function (k) { return !(k in baseline); });
 
