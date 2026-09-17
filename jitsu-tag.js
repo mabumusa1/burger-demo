@@ -45,14 +45,48 @@
     try { window.dispatchEvent(new CustomEvent('sfere:jitsu', { detail: rec })); } catch (e) {}
   }
 
-  /* Wrap fetch so we can show the exact body, then send it for real. */
+  /*
+   * Deliver the payload, then show it.
+   *
+   * The collector returns 200 but sends no Access-Control-Allow-Origin, so a normal
+   * cross-origin POST is blocked: Jitsu sends Content-Type application/json, which forces
+   * a preflight, and the preflight has nothing to pass. A "simple request" skips preflight
+   * altogether, so the body is delivered as text/plain instead. The content is byte for
+   * byte what Jitsu built; only the declared type changes.
+   *
+   * sendBeacon is the right instrument for this: no preflight, no response to read, and it
+   * reports whether the browser queued the request. We record that outcome rather than
+   * assuming delivery, which is the mistake this replaces.
+   */
+  function deliver(url, body) {
+    try {
+      var blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
+      if (navigator.sendBeacon && navigator.sendBeacon(url, blob)) return 'queued (sendBeacon)';
+    } catch (e) {}
+    try {
+      // no-cors keeps it a simple request; the response is opaque and we cannot read it.
+      window.fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: body });
+      return 'sent (no-cors, response not readable)';
+    } catch (e) { return 'failed: ' + e.message; }
+  }
+
   function recordingFetch(variant) {
     return function (url, opts) {
+      var raw = opts && opts.body;
       var body = null;
-      try { body = opts && opts.body ? JSON.parse(opts.body) : null; } catch (e) { body = opts && opts.body; }
-      emit({ variant: variant, url: String(url), at: Date.now(),
+      try { body = raw ? JSON.parse(raw) : null; } catch (e) { body = raw; }
+
+      var outcome = raw ? deliver(String(url), raw) : 'no body';
+
+      emit({ variant: variant, url: String(url), at: Date.now(), delivery: outcome,
              clientIds: body && body.context ? body.context.clientIds : null, body: body });
-      return window.fetch(url, opts);   // the real request, unmodified
+
+      // The collector cannot return a readable response cross-origin, so hand the SDK a
+      // synthetic one. The delivery above already happened; this only stops the SDK
+      // logging a failure it has no way to act on.
+      return Promise.resolve(new Response('{"ok":true}', {
+        status: 200, headers: { 'Content-Type': 'application/json' } }));
     };
   }
 

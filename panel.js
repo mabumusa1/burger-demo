@@ -127,7 +127,8 @@
       html += '<div class="req ' + (v === 'configured' ? 'carries' : '') + '">' +
         '<div class="req-h"><span class="tag ' + (v === 'configured' ? 'meta' : '') + '">' +
         (v === 'configured' ? 'cookieCapture configured' : 'default install') + '</span>' +
-        '<span class="pill ' + (keys.length > 2 ? 'good' : 'bad') + '">' + keys.length + ' clientIds</span></div>' +
+        '<span class="pill ' + (keys.length > 2 ? 'good' : 'bad') + '">' + keys.length + ' clientIds</span>' +
+        (r.delivery ? '<span class="pill">' + esc(r.delivery) + '</span>' : '') + '</div>' +
         (keys.length ? '<ul class="kv">' + keys.map(function (k) {
           return '<li class="hit"><code>' + esc(k) + '</code> ' + esc(short(typeof ids[k] === 'object' ? JSON.stringify(ids[k]) : ids[k], 26)) + '</li>';
         }).join('') + '</ul>' : '<p class="muted">none</p>') + '</div>';
