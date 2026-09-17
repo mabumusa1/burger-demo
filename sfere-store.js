@@ -92,27 +92,30 @@
   }
 
   /** Take a page view: click ids off the URL, plus whatever cookies the pixels have set. */
-  function ingest() {
+  function ingest(activeNetworks) {
     var now = Date.now();
     var g = load();
     g.pageviews = (g.pageviews || 0) + 1;
     var cookies = readCookies();
     var q = new URLSearchParams(location.search);
     var delta = {};
+    var active = activeNetworks || Object.keys(NETWORK_COOKIES);
 
-    CLICK_IDS.forEach(function (def) {
+    CLICK_IDS.filter(function (d) { return active.indexOf(d.platform) >= 0; }).forEach(function (def) {
       var v = q.get(def.param);
       if (v) delta[def.param] = upsert(g, def.param, v, {
         source: 'landing-url', platform: def.platform, ttlDays: def.ttlDays, ttlBasis: def.ttlBasis }, now);
     });
 
-    var fbclid = q.get('fbclid');
+    var fbclid = active.indexOf('meta') >= 0 ? q.get('fbclid') : null;
     if (fbclid && !cookies._fbc) {
       delta._fbc = upsert(g, '_fbc', buildFbc(fbclid, location.hostname, now),
         { source: 'derived-from-fbclid', platform: 'meta', ttlDays: 90, ttlBasis: 'documented' }, now);
     }
 
-    Object.keys(NETWORK_COOKIES).forEach(function (platform) {
+    // A cookie from a network this page does not run was set by something else on this
+    // host. Counting it would overstate what the capture layer achieved.
+    Object.keys(NETWORK_COOKIES).filter(function (p) { return active.indexOf(p) >= 0; }).forEach(function (platform) {
       NETWORK_COOKIES[platform].forEach(function (name) {
         if (cookies[name]) delta[name] = upsert(g, name, cookies[name],
           { source: 'network-cookie', platform: platform, ttlDays: 90, ttlBasis: 'assumption' }, now);
@@ -136,10 +139,13 @@
   }
 
   /** The comparison that carries the argument: default tag vs capture layer, same visitor. */
-  function comparison(g, cookies) {
+  function comparison(g, cookies, activeNetworks) {
+    var active = activeNetworks || Object.keys(NETWORK_COOKIES);
     var baseline = {};
-    ['_fbp', '_fbc'].forEach(function (n) { if (cookies[n]) baseline[n] = cookies[n]; });
-    Object.keys(cookies).forEach(function (k) { if (k === '_ga' || k.indexOf('_ga_') === 0) baseline[k] = cookies[k]; });
+    // What a DEFAULT tag would hold: Meta's two cookies and the analytics ids, and only
+    // for networks this page actually runs.
+    if (active.indexOf('meta') >= 0) ['_fbp', '_fbc'].forEach(function (n) { if (cookies[n]) baseline[n] = cookies[n]; });
+    if (active.indexOf('google') >= 0) Object.keys(cookies).forEach(function (k) { if (k === '_ga' || k.indexOf('_ga_') === 0) baseline[k] = cookies[k]; });
 
     var live = bundle(g).live, enriched = {};
     Object.keys(live).forEach(function (k) { enriched[k] = live[k].value; });

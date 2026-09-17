@@ -24,6 +24,13 @@
             config: CFG, comparison: null, capi: null, ip: null };
   window.__SFERE = S;
 
+  // Which networks this page actually runs. Cookies from anything else on this host
+  // belong to another site and must not be counted as ours.
+  function activeNetworks() {
+    var m = { meta: 'meta', tiktok: 'tiktok', snap: 'snap', ga4: 'google' };
+    return Object.keys(m).filter(function (k) { return !!(CFG.pixels || {})[k]; }).map(function (k) { return m[k]; });
+  }
+
   function emit(n, d) { try { window.dispatchEvent(new CustomEvent('sfere:' + n, { detail: d })); } catch (e) {} }
   function uuid() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
     : 'x-' + Date.now() + '-' + Math.random().toString(36).slice(2); }
@@ -140,10 +147,10 @@
       externalId = idres.id;
       S.externalId = externalId;
       S.isNew = idres.isNew;
-      ing = window.SfereStore.ingest();                 // click ids off the URL, before pixels
+      ing = window.SfereStore.ingest(activeNetworks());   // click ids off the URL, before pixels
       hashed = await sha256Hex(externalId);
       S.externalIdHashed = hashed;
-      S.comparison = window.SfereStore.comparison(ing.graph, ing.cookies);
+      S.comparison = window.SfereStore.comparison(ing.graph, ing.cookies, activeNetworks());
       // the panel reads S.bootstrap for the identity card
       S.bootstrap = { externalId: externalId, externalIdHashed: hashed,
         isNewVisitor: idres.isNew, pageviews: ing.graph.pageviews, comparison: S.comparison };
@@ -170,8 +177,8 @@
 
     // Let the pixels write their cookies, then re-read and build the server-side payload.
     setTimeout(async function () {
-      var again = window.SfereStore.ingest();
-      S.comparison = window.SfereStore.comparison(again.graph, again.cookies);
+      var again = window.SfereStore.ingest(activeNetworks());
+      S.comparison = window.SfereStore.comparison(again.graph, again.cookies, activeNetworks());
       var live = window.SfereStore.bundle(again.graph).live;
       S.capi = await buildCapi(live);
       emit('collect', { comparison: S.comparison, capi: S.capi, ip: S.ip });
