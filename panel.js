@@ -111,6 +111,39 @@
       + rows.join('') + '</tbody></table>';
   }
 
+  /* What the Jitsu tracker actually put on the wire, per variant. */
+  function renderJitsu() {
+    var recs = window.__SFERE_JITSU || [];
+    if (!recs.length) { $('jitsu').innerHTML = '<p class="muted">fires a few seconds after the pixels…</p>'; return; }
+    var byVariant = {};
+    recs.forEach(function (r) { byVariant[r.variant] = r; });
+
+    var html = '';
+    ['default', 'configured'].forEach(function (v) {
+      var r = byVariant[v];
+      if (!r) return;
+      var ids = r.clientIds || {};
+      var keys = Object.keys(ids).filter(function (k) { return ids[k]; });
+      html += '<div class="req ' + (v === 'configured' ? 'carries' : '') + '">' +
+        '<div class="req-h"><span class="tag ' + (v === 'configured' ? 'meta' : '') + '">' +
+        (v === 'configured' ? 'cookieCapture configured' : 'default install') + '</span>' +
+        '<span class="pill ' + (keys.length > 2 ? 'good' : 'bad') + '">' + keys.length + ' clientIds</span></div>' +
+        (keys.length ? '<ul class="kv">' + keys.map(function (k) {
+          return '<li class="hit"><code>' + esc(k) + '</code> ' + esc(short(typeof ids[k] === 'object' ? JSON.stringify(ids[k]) : ids[k], 26)) + '</li>';
+        }).join('') + '</ul>' : '<p class="muted">none</p>') + '</div>';
+    });
+
+    var d = byVariant['default'], c = byVariant['configured'];
+    if (d && c) {
+      var dn = Object.keys(d.clientIds || {}).filter(function (k) { return d.clientIds[k]; }).length;
+      var cn = Object.keys(c.clientIds || {}).filter(function (k) { return c.clientIds[k]; }).length;
+      html += '<p class="hint">Same tracker, same page, same moment: <b>' + dn + '</b> identifiers with the ' +
+        'default config, <b>' + cn + '</b> once it is told which cookies exist. Neither reads the landing URL, ' +
+        'so the click identifiers are in neither.</p>';
+    }
+    $('jitsu').innerHTML = html;
+  }
+
   var seen = [];
   function renderNet() {
     var list = (window.__SFERE_NET || []).filter(function (e) { return e.beacon; });
@@ -165,10 +198,12 @@
   });
   window.addEventListener('sfere:pixels', function () { renderIdentity(); setTimeout(renderNet, 400); });
   window.addEventListener('sfere:net', function () { renderNet(); renderStatus(); });
+  window.addEventListener('sfere:jitsu', function () { renderJitsu(); });
   window.addEventListener("sfere:collect", function (e) { renderCapi(e.detail.capi, e.detail.ip); renderCompare(e.detail.comparison); });
 
   renderMode(); renderIdentity(); renderCompare(null); renderStatus();
-  setInterval(function () { renderNet(); renderStatus(); }, 1200);
+  renderJitsu();
+  setInterval(function () { renderNet(); renderStatus(); renderJitsu(); }, 1200);
 
   $('resetBtn').addEventListener('click', function (ev) {
     ev.preventDefault();

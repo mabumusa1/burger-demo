@@ -16,4 +16,9 @@ window.SFERE_CONFIG = {
   // A browser cannot see its own public IP, and Snapchat refuses a payload without one.
   // This stands in for what a server would already know. Set to null to skip the lookup.
   ipEcho: 'https://api.ipify.org?format=json',
+
+  // Where the Jitsu tracker posts. It appends /api/s/<method>, so a webhook collector
+  // receives POSTs at /api/s/track and /api/s/page.
+  jitsuHost: 'https://hook-142slz.fasthook.io',
+  jitsuWriteKey: 'burger-demo',
 };
