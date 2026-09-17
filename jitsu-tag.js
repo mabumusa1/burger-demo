@@ -17,8 +17,10 @@
 (function () {
   'use strict';
 
+  // The SDK validates the write key shape (key:secret) before it will initialise. The
+  // endpoint here is a webhook collector, so nothing is actually authenticated by it.
   var HOOK = (window.SFERE_CONFIG && window.SFERE_CONFIG.jitsuHost) || 'https://hook-142slz.fasthook.io';
-  var WRITE_KEY = (window.SFERE_CONFIG && window.SFERE_CONFIG.jitsuWriteKey) || 'burger-demo';
+  var WRITE_KEY = (window.SFERE_CONFIG && window.SFERE_CONFIG.jitsuWriteKey) || 'burgerdemo:webhookcapture';
 
   // Every network cookie worth asking for. The default install asks for none of these.
   var COOKIE_CAPTURE = {

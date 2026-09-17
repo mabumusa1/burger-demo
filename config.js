@@ -20,5 +20,5 @@ window.SFERE_CONFIG = {
   // Where the Jitsu tracker posts. It appends /api/s/<method>, so a webhook collector
   // receives POSTs at /api/s/track and /api/s/page.
   jitsuHost: 'https://hook-142slz.fasthook.io',
-  jitsuWriteKey: 'burger-demo',
+  jitsuWriteKey: 'burgerdemo:webhookcapture',
 };
