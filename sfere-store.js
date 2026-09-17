@@ -59,6 +59,26 @@
   }
   function save(g) { try { localStorage.setItem(KEY, JSON.stringify(g)); } catch (e) {} }
 
+  /*
+   * The analytics client id is the agreed external id, so the capture layer takes ownership
+   * of it rather than racing the analytics tag for it.
+   *
+   * Read the _ga cookie if it exists: overwriting a visitor's existing analytics identity
+   * would reset their history. Only when there is no cookie do we mint one, in the same
+   * {random}.{unix seconds} shape, and hand it to gtag via config's client_id parameter.
+   * That removes the ordering problem: on a first-ever visit there is no _ga cookie yet,
+   * and without this the other pixels would have nothing to initialise with.
+   */
+  function ensureAnalyticsClientId() {
+    var ga = readCookies()['_ga'];
+    if (ga) {
+      var parts = String(ga).split('.');
+      if (parts.length >= 4) return { id: parts.slice(-2).join('.'), source: 'existing _ga cookie' };
+    }
+    var minted = Math.floor(Math.random() * 9e8 + 1e8) + '.' + Math.floor(Date.now() / 1000);
+    return { id: minted, source: 'minted, no _ga cookie yet' };
+  }
+
   function ensureId() {
     var id = null;
     try { id = localStorage.getItem(ID_KEY); } catch (e) {}
@@ -175,6 +195,7 @@
     document.cookie = ID_KEY + '=;path=/;max-age=0';
   }
 
-  window.SfereStore = { ensureId: ensureId, ingest: ingest, bundle: bundle,
+  window.SfereStore = { ensureId: ensureId, ensureAnalyticsClientId: ensureAnalyticsClientId,
+    ingest: ingest, bundle: bundle,
     comparison: comparison, reset: reset, readCookies: readCookies, CLICK_IDS: CLICK_IDS };
 })();

@@ -106,7 +106,9 @@
       cookieCapture: COOKIE_CAPTURE, fetch: recordingFetch('configured') }));
 
     var S = window.__SFERE || {};
-    var common = { sfere_external_id: S.externalId || null, sfere_event_id: S.dedupId || null };
+    // No external id property: the adapter derives it from context.clientIds.ga4.clientId,
+    // which the tracker already collects. Only the dedup id has to be carried explicitly.
+    var common = { sfere_event_id: S.dedupId || null };
 
     a.track('jitsu_default_config', Object.assign({ variant: 'default',
       note: 'cookieCapture not configured' }, common));

@@ -24,13 +24,13 @@
     var b = S.bootstrap;
     var rows = [];
     if (S.mode === 'baseline') {
-      rows.push(['first-party id', '<span class="bad">none minted</span>']);
+      rows.push(['analytics client_id', '<span class="bad">not taken over</span>']);
       rows.push(['sent to pixels', '<span class="bad">nothing</span>']);
     } else if (b) {
-      rows.push(['first-party id', '<code>' + esc(b.externalId) + '</code>']);
-      rows.push(['on the wire (SHA-256)', '<code class="small">' + esc(short(b.externalIdHashed, 32)) + '</code>']);
-      rows.push(['visitor', b.isNewVisitor ? 'new' : 'returning, page view ' + b.pageviews]);
-      rows.push(['cookie', '<span class="bad">JavaScript-set</span> <span class="hint">static hosting; server-set HttpOnly in production</span>']);
+      rows.push(['analytics client_id', '<code>' + esc(b.externalId) + '</code>']);
+      rows.push(['source', '<span class="sub">' + esc(b.externalIdSource || '') + '</span>']);
+      rows.push(['sent as external_id', '<code class="small">' + esc(short(b.externalIdHashed, 32)) + '</code>']);
+      rows.push(['page view', String(b.pageviews || 1)]);
     }
     rows.push(['dedup id', '<code class="small">' + esc(short(S.dedupId, 28)) + '</code>']);
     $('identity').innerHTML = rows.map(function (r) {

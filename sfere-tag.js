@@ -74,14 +74,17 @@
     // The Snap web pixel has no external_id field. Snap identity is server-side only.
     snaptr('init', id, {});
   }
-  function loadGoogle(id) {
+  function loadGoogle(id, clientId) {
     if (!id) return;
     var s = document.createElement('script');
     s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
     document.head.appendChild(s);
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () { window.dataLayer.push(arguments); };
-    gtag('js', new Date()); gtag('config', id);
+    gtag('js', new Date());
+    // Pin the client id rather than letting the tag mint its own, so the value the other
+    // networks receive as external_id is the same one the warehouse export is keyed on.
+    gtag('config', id, clientId ? { client_id: clientId } : {});
   }
 
   // --- the conversions-API half, using the real shipped destination code -----
@@ -143,10 +146,11 @@
     var externalId = null, hashed = null, ing = null;
 
     if (MODE === 'sfere') {
-      var idres = window.SfereStore.ensureId();
-      externalId = idres.id;
+      // 1. Settle the analytics client id BEFORE anything else. It is the external id.
+      var cid = window.SfereStore.ensureAnalyticsClientId();
+      externalId = cid.id;
       S.externalId = externalId;
-      S.isNew = idres.isNew;
+      S.externalIdSource = cid.source;
       ing = window.SfereStore.ingest(activeNetworks());   // click ids off the URL, before pixels
       hashed = await sha256Hex(externalId);
       S.externalIdHashed = hashed;
@@ -158,10 +162,11 @@
         isNewVisitor: idres.isNew, pageviews: ing.graph.pageviews, comparison: S.comparison });
     }
 
-    loadMeta(CFG.pixels.meta, externalId);
+    // 2. Analytics first, pinned to that id, then the rest all carrying the same value.
+    loadGoogle(CFG.pixels.ga4, externalId);
+    loadMeta(CFG.pixels.meta, externalId);   // external_id on the FIRST init, or Meta ignores it
     loadTikTok(CFG.pixels.tiktok);
     loadSnap(CFG.pixels.snap);
-    loadGoogle(CFG.pixels.ga4);
 
     if (window.ttq && hashed) ttq.identify({ external_id: hashed });   // SHA-256 required
 
