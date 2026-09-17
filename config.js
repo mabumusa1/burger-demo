@@ -1,0 +1,19 @@
+/*
+ * Pixel IDs for the demo. These are PUBLIC by nature: every site that runs a pixel exposes
+ * its id in the page source. Access tokens are a different matter and never appear here,
+ * which is why the conversions-API payloads on this page are built and shown but not sent.
+ *
+ * Fill these in and redeploy.
+ */
+window.SFERE_CONFIG = {
+  siteName: 'The Daily Grill',
+  pixels: {
+    meta:   '',   // Meta pixel / dataset id, e.g. 1234567890
+    tiktok: '',   // TikTok pixel code,       e.g. CABCDEFGHIJKLMNOPQRS
+    snap:   '',   // Snap pixel id,           e.g. 11111111-2222-3333-4444-555555555555
+    ga4:    '',   // GA4 measurement id,      e.g. G-XXXXXXXXXX
+  },
+  // A browser cannot see its own public IP, and Snapchat refuses a payload without one.
+  // This stands in for what a server would already know. Set to null to skip the lookup.
+  ipEcho: 'https://api.ipify.org?format=json',
+};

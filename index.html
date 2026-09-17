@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Smash Burger Rules Nobody Follows | The Daily Grill</title>
+<meta name="description" content="Four rules that separate a great smash burger from a sad one." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>" />
+<link rel="stylesheet" href="styles.css" />
+<!-- The observer must be first: it watches every outbound call the pixels make. -->
+<script src="observer.js"></script>
+<script src="config.js"></script>
+<!-- The real shipped conversions-API destinations, bundled for the browser. -->
+<script src="vendor/capi-bundle.js"></script>
+<script src="sfere-store.js"></script>
+<!-- The capture layer runs before any pixel exists. Order is the point. -->
+<script src="sfere-tag.js"></script>
+</head>
+<body>
+
+<div class="layout">
+
+  <main class="article">
+    <header class="masthead">
+      <span class="brand">The Daily Grill</span>
+      <nav><a href="#">Food</a><a href="#">Reviews</a><a href="#">Travel</a><a href="#">Recipes</a></nav>
+    </header>
+
+    <article>
+      <p class="kicker">Food · Technique</p>
+      <h1>The smash burger rules nobody follows</h1>
+      <p class="byline">By J. Reyes · 6 min read</p>
+
+      <div class="hero" aria-hidden="true">🍔</div>
+
+      <p class="lede">A smash burger is not a thin hamburger. It is a different cooking method
+      that happens to use the same ingredients, and almost everything that goes wrong with one
+      goes wrong in the first fifteen seconds.</p>
+
+      <h2>1. The ball goes on the griddle cold</h2>
+      <p>Room-temperature beef spreads before it sears. You want the fat still firm when it hits
+      the steel, so the outside can brown while the inside is barely warm. Weigh out 85 gram
+      balls, keep them on a tray in the fridge, and take out only what fits on the surface.</p>
+
+      <h2>2. Smash once, within ten seconds</h2>
+      <p>The crust is a Maillard reaction and it needs contact. Press hard, press flat, and press
+      only once. A second press after the proteins have set tears the crust you just built and
+      squeezes out the fat that was going to carry the flavour.</p>
+      <blockquote>If you can hear it from the next room, the griddle is hot enough.</blockquote>
+
+      <h2>3. Salt after the smash, not before</h2>
+      <p>Salt draws moisture to the surface. Salt the ball early and you steam the first thirty
+      seconds away. Salt it flat, on the griddle, and the crust is already forming underneath.</p>
+
+      <h2>4. The cheese goes on while the patty is still on the heat</h2>
+      <p>Cheese added after the flip, on a patty already resting, never melts properly. It sits
+      there looking like a slice of cheese on a burger, which is what it is. Put it on while the
+      second side is still cooking and cover it for twenty seconds.</p>
+
+      <h2>What to do with the bun</h2>
+      <p>Toast it in the beef fat. Not butter, not a separate pan. The fat left behind after the
+      patties come off is the best thing on the griddle and most people wipe it away.</p>
+
+      <p class="outro">Next week: why your onions are wrong, and the case for cooking them
+      into the patty rather than beside it.</p>
+    </article>
+  </main>
+
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <h2>What the networks are receiving</h2>
+      <p id="modeLine" class="mode">reading mode…</p>
+      <div class="rail-actions">
+        <a id="toggleMode" class="btn" href="#">switch mode</a>
+        <a class="btn ghost" href="./?fbclid=IwAR_demo_click_9x&amp;ttclid=E.C.P.demo7h&amp;ScCid=demo-snap-1&amp;gclid=Cj0demoKEQ">arrive from an ad</a>
+        <a class="btn ghost danger" id="resetBtn" href="#">reset</a>
+      </div>
+    </div>
+
+    <section class="card" id="identityCard">
+      <h3>This visitor</h3>
+      <dl id="identity"><dd class="muted">starting up…</dd></dl>
+    </section>
+
+    <section class="card highlight" id="compareCard">
+      <h3>Default tag vs capture layer</h3>
+      <div id="compare"><p class="muted">waiting for the first page view…</p></div>
+    </section>
+
+    <section class="card" id="netCard">
+      <h3>Outbound pixel calls</h3>
+      <p class="hint">Recorded, never blocked. The pixels must fire to set their own cookies.</p>
+      <div id="net"><p class="muted">none yet…</p></div>
+    </section>
+
+    <section class="card note" id="hostCard">
+      <h3>Two things this build cannot do</h3>
+      <ul class="notes">
+        <li>The visitor id cookie is written by <b>JavaScript, not by a server</b>, because static
+            hosting has no server. Safari and iOS cap that at seven days. In production it is a
+            server <code>Set-Cookie</code> with HttpOnly, which is not capped.</li>
+        <li>Payloads are <b>built and shown, never sent</b>. A conversions-API token cannot live in
+            a public page, so nothing reaches a network from here.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="capiCard">
+      <h3>Server-side payloads</h3>
+      <p class="hint" id="sendModeHint"></p>
+      <div id="capi"><p class="muted">sent a moment after the page settles…</p></div>
+    </section>
+  </aside>
+
+</div>
+
+<script src="panel.js"></script>
+</body>
+</html>
