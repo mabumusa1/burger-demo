@@ -232,13 +232,31 @@
   window.addEventListener('sfere:jitsu', function () { renderJitsu(); });
   window.addEventListener("sfere:collect", function (e) { renderCapi(e.detail.capi, e.detail.ip); renderCompare(e.detail.comparison); });
 
+  // If the previous action was a reset, say plainly what it could and could not clear.
+  try {
+    var rep = sessionStorage.getItem('sfere_reset_report');
+    if (rep) {
+      var r = JSON.parse(rep);
+      sessionStorage.removeItem('sfere_reset_report');
+      var msg = r.remaining && r.remaining.length
+        ? '<span class="bad">Cleared ' + r.attempted.length + ', but ' + r.remaining.length +
+          ' survived</span> <span class="sub">' + esc(r.remaining.join(', ')) + '</span>'
+        : '<span class="good">Cleared ' + r.attempted.length + ' cookies, none left</span>';
+      $('modeLine').insertAdjacentHTML('afterend', '<p class="mode">' + msg + '</p>');
+    }
+  } catch (e) {}
+
   renderMode(); renderIdentity(); renderCompare(null); renderStatus(); renderRetained();
   renderJitsu();
   setInterval(function () { renderNet(); renderStatus(); renderJitsu(); renderRetained(); }, 1200);
 
   $('resetBtn').addEventListener('click', function (ev) {
     ev.preventDefault();
-    if (window.SfereStore) window.SfereStore.reset();
+    var r = window.SfereStore ? window.SfereStore.reset() : null;
+    // Report in the page, never a modal: a dialog blocks everything else on the page.
+    if (r) {
+      try { sessionStorage.setItem('sfere_reset_report', JSON.stringify(r)); } catch (e) {}
+    }
     location.href = './';
   });
 })();

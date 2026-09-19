@@ -199,9 +199,34 @@
     };
   }
 
+  /*
+   * Clear everything this host carries, not just our own keys.
+   *
+   * This host has served other instrumented pages, so it holds their pixel cookies too.
+   * Reading those as if this page had set them overstates what the capture layer achieved,
+   * which is exactly the mixed signal worth removing before a demo.
+   *
+   * Only non-HttpOnly cookies are reachable from script, and only on paths we can name.
+   * Pixel cookies are all script-set, so in practice this clears them.
+   */
   function reset() {
-    try { localStorage.removeItem(KEY); localStorage.removeItem(ID_KEY); } catch (e) {}
-    document.cookie = ID_KEY + '=;path=/;max-age=0';
+    try { localStorage.clear(); } catch (e) {}
+    try { sessionStorage.clear(); } catch (e) {}
+
+    var names = Object.keys(readCookies());
+    var paths = ['/', location.pathname, location.pathname.replace(/[^/]+$/, '')];
+    var cleared = [];
+
+    names.forEach(function (n) {
+      paths.forEach(function (path) {
+        document.cookie = n + '=;path=' + path + ';max-age=0';
+        document.cookie = n + '=;path=' + path + ';domain=' + location.hostname + ';max-age=0';
+      });
+      cleared.push(n);
+    });
+
+    var left = Object.keys(readCookies());
+    return { attempted: cleared, remaining: left };
   }
 
   /** Identifiers the graph holds that this page view could not have supplied. */
