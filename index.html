@@ -6,15 +6,15 @@
 <title>The Smash Burger Rules Nobody Follows | The Daily Grill</title>
 <meta name="description" content="Four rules that separate a great smash burger from a sad one." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>" />
-<link rel="stylesheet" href="styles.css?v=1789654821" />
+<link rel="stylesheet" href="styles.css?v=1789842697" />
 <!-- The observer must be first: it watches every outbound call the pixels make. -->
-<script src="observer.js?v=1789654821"></script>
-<script src="config.js?v=1789654821"></script>
+<script src="observer.js?v=1789842697"></script>
+<script src="config.js?v=1789842697"></script>
 <!-- The real shipped conversions-API destinations, bundled for the browser. -->
-<script src="vendor/capi-bundle.js?v=1789654821"></script>
-<script src="sfere-store.js?v=1789654821"></script>
+<script src="vendor/capi-bundle.js?v=1789842697"></script>
+<script src="sfere-store.js?v=1789842697"></script>
 <!-- The capture layer runs before any pixel exists. Order is the point. -->
-<script src="sfere-tag.js?v=1789654821"></script>
+<script src="sfere-tag.js?v=1789842697"></script>
 </head>
 <body>
 
@@ -72,7 +72,8 @@
       <p id="modeLine" class="mode">reading mode…</p>
       <div class="rail-actions">
         <a id="toggleMode" class="btn" href="#">switch mode</a>
-        <a class="btn ghost" href="./?fbclid=IwAR_demo_click_9x&amp;ttclid=E.C.P.demo7h&amp;ScCid=demo-snap-1&amp;gclid=Cj0demoKEQ">arrive from an ad</a>
+        <a class="btn ghost" href="./?fbclid=IwAR_demo_click_9x&amp;ttclid=E.C.P.demo7h&amp;ScCid=demo-snap-1&amp;gclid=Cj0demoKEQ">1 · arrive from an ad</a>
+        <a class="btn ghost" href="./">2 · return, no click ids</a>
         <a class="btn ghost danger" id="resetBtn" href="#">reset</a>
       </div>
     </div>
@@ -90,6 +91,13 @@
     <section class="card highlight" id="compareCard">
       <h3>Default tag vs capture layer</h3>
       <div id="compare"><p class="muted">waiting for the first page view…</p></div>
+    </section>
+
+    <section class="card retain" id="retainCard">
+      <h3>Carried over from earlier visits</h3>
+      <p class="hint">Identifiers this page view could not supply. The page no longer has them;
+        the graph still does. Use “arrive from an ad”, then “return, no click ids”.</p>
+      <div id="retain"><p class="muted">nothing carried yet…</p></div>
     </section>
 
     <section class="card" id="netCard">
@@ -126,8 +134,8 @@
 </div>
 
 <!-- The Jitsu tracker, posting for real to the webhook. -->
-<script src="vendor/jitsu.js?v=1789654821"></script>
-<script src="jitsu-tag.js?v=1789654821"></script>
-<script src="panel.js?v=1789654821"></script>
+<script src="vendor/jitsu.js?v=1789842697"></script>
+<script src="jitsu-tag.js?v=1789842697"></script>
+<script src="panel.js?v=1789842697"></script>
 </body>
 </html>

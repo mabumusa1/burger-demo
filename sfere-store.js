@@ -142,6 +142,11 @@
       });
     });
 
+    // Which keys this page view could supply on its own. Anything live in the graph and
+    // NOT in here was carried over from an earlier visit: the page no longer has it.
+    g.lastSeenKeys = Object.keys(delta);
+    g.lastViewAt = now;
+
     save(g);
     return { graph: g, delta: delta, cookies: cookies };
   }
@@ -153,9 +158,13 @@
       var v = g.identifiers[k];
       // Stored on an earlier visit, for a network this page no longer runs. Not ours.
       if (active && v.platform && active.indexOf(v.platform) < 0) return;
+      var suppliedNow = (g.lastSeenKeys || []).indexOf(k) >= 0;
       (v.expiresAt > now ? live : expired)[k] = {
         value: v.value, source: v.source, platform: v.platform, ttlDays: v.ttlDays,
         ttlBasis: v.ttlBasis, reused: v.reused,
+        // The retention argument, made checkable: this page view did not carry it.
+        retained: !suppliedNow,
+        firstSeen: v.firstSeen,
         expiresInDays: Math.max(0, Math.round((v.expiresAt - now) / 86400000)) };
     });
     return { live: live, expired: expired };
@@ -195,7 +204,15 @@
     document.cookie = ID_KEY + '=;path=/;max-age=0';
   }
 
+  /** Identifiers the graph holds that this page view could not have supplied. */
+  function retained(g, activeNetworks) {
+    var live = bundle(g, activeNetworks).live, out = {};
+    Object.keys(live).forEach(function (k) { if (live[k].retained) out[k] = live[k]; });
+    return out;
+  }
+
   window.SfereStore = { ensureId: ensureId, ensureAnalyticsClientId: ensureAnalyticsClientId,
+    retained: retained,
     ingest: ingest, bundle: bundle,
     comparison: comparison, reset: reset, readCookies: readCookies, CLICK_IDS: CLICK_IDS };
 })();

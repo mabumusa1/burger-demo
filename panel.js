@@ -63,6 +63,36 @@
     $('compare').innerHTML = html;
   }
 
+  /* The retention argument: what the graph holds that this page view could not supply. */
+  function renderRetained() {
+    if (!window.SfereStore || S.mode === 'baseline') {
+      $('retain').innerHTML = '<p class="muted">No capture layer running, so nothing is retained.</p>';
+      return;
+    }
+    var g;
+    try { g = JSON.parse(localStorage.getItem('sfere_graph_v1') || '{}'); } catch (e) { g = {}; }
+    if (!g.identifiers) { $('retain').innerHTML = '<p class="muted">nothing carried yet…</p>'; return; }
+
+    var kept = window.SfereStore.retained(g, (S.config && S.config.pixels) ? undefined : undefined);
+    var keys = Object.keys(kept);
+    if (!keys.length) {
+      $('retain').innerHTML = '<p class="muted">Nothing carried on this view. Arrive from an ad, then return with a clean URL.</p>';
+      return;
+    }
+    var html = '<div class="scores"><div class="score"><span class="n good">' + keys.length +
+      '</span><span class="l">still available</span></div></div>' +
+      '<table class="gain"><thead><tr><th>identifier</th><th>first seen</th><th>expires in</th></tr></thead><tbody>';
+    keys.forEach(function (k) {
+      var v = kept[k];
+      var age = v.firstSeen ? Math.round((Date.now() - v.firstSeen) / 60000) : null;
+      html += '<tr><td><code>' + esc(k) + '</code></td><td>' +
+        (age === null ? '—' : age < 60 ? age + ' min ago' : Math.round(age / 60) + ' h ago') +
+        '</td><td>' + v.expiresInDays + ' d</td></tr>';
+    });
+    html += '</tbody></table>';
+    $('retain').innerHTML = html;
+  }
+
   var NETWORKS = [
     { key: 'meta', label: 'Meta', lib: 'fbq', idSupport: 'pixel' },
     { key: 'tiktok', label: 'TikTok', lib: 'ttq', idSupport: 'pixel' },
@@ -202,9 +232,9 @@
   window.addEventListener('sfere:jitsu', function () { renderJitsu(); });
   window.addEventListener("sfere:collect", function (e) { renderCapi(e.detail.capi, e.detail.ip); renderCompare(e.detail.comparison); });
 
-  renderMode(); renderIdentity(); renderCompare(null); renderStatus();
+  renderMode(); renderIdentity(); renderCompare(null); renderStatus(); renderRetained();
   renderJitsu();
-  setInterval(function () { renderNet(); renderStatus(); renderJitsu(); }, 1200);
+  setInterval(function () { renderNet(); renderStatus(); renderJitsu(); renderRetained(); }, 1200);
 
   $('resetBtn').addEventListener('click', function (ev) {
     ev.preventDefault();

@@ -114,3 +114,6 @@ table.status-tbl tr.off-row td{color:var(--rail-muted)}
 .dot.amber{background:#f5b74e}
 .dot.grey{background:#55516a}
 .sub{color:var(--rail-muted);font-size:11px}
+
+/* identifiers the graph kept when the page could not supply them */
+.card.retain{border-color:rgba(61,220,151,.45)}
